@@ -150,7 +150,6 @@ class FilePicker {
              const InternalKeyComparator* internal_comparator)
       : num_levels_(num_levels),
         curr_level_(static_cast<unsigned int>(-1)),
-        returned_file_level_(static_cast<unsigned int>(-1)),
         hit_file_level_(static_cast<unsigned int>(-1)),
         search_left_bound_(0),
         search_right_bound_(FileIndexer::kLevelMaxIndex),
@@ -230,7 +229,6 @@ class FilePicker {
           }
         }
 
-        returned_file_level_ = curr_level_;
         if (curr_level_ > 0 && cmp_largest < 0) {
           // No more files to search in this level.
           search_ended_ = !PrepareNextLevel();
@@ -257,7 +255,6 @@ class FilePicker {
  private:
   unsigned int num_levels_;
   unsigned int curr_level_;
-  unsigned int returned_file_level_;
   unsigned int hit_file_level_;
   int32_t search_left_bound_;
   int32_t search_right_bound_;
@@ -362,7 +359,6 @@ class FilePickerMultiGet {
                      const InternalKeyComparator* internal_comparator)
       : num_levels_(num_levels),
         curr_level_(static_cast<unsigned int>(-1)),
-        returned_file_level_(static_cast<unsigned int>(-1)),
         hit_file_level_(static_cast<unsigned int>(-1)),
         range_(*range, range->begin(), range->end()),
         maybe_repeat_key_(false),
@@ -405,7 +401,6 @@ class FilePickerMultiGet {
   FilePickerMultiGet(MultiGetRange* range, const FilePickerMultiGet& other)
       : num_levels_(other.num_levels_),
         curr_level_(other.curr_level_),
-        returned_file_level_(other.returned_file_level_),
         hit_file_level_(other.hit_file_level_),
         fp_ctx_array_(other.fp_ctx_array_),
         range_(*range, range->begin(), range->end()),
@@ -480,7 +475,6 @@ class FilePickerMultiGet {
       // Set the range for this file
       current_file_range_ =
           MultiGetRange(next_file_range, batch_iter_prev_, upper_key_);
-      returned_file_level_ = curr_level_;
       hit_file_level_ = curr_level_;
       is_hit_file_last_in_level_ =
           curr_file_index == curr_file_level_->num_files - 1;
@@ -520,7 +514,6 @@ class FilePickerMultiGet {
   FilePickerMultiGet(FilePickerMultiGet&& other)
       : num_levels_(other.num_levels_),
         curr_level_(other.curr_level_),
-        returned_file_level_(other.returned_file_level_),
         hit_file_level_(other.hit_file_level_),
         fp_ctx_array_(std::move(other.fp_ctx_array_)),
         range_(std::move(other.range_)),
@@ -542,7 +535,6 @@ class FilePickerMultiGet {
  private:
   unsigned int num_levels_;
   unsigned int curr_level_;
-  unsigned int returned_file_level_;
   unsigned int hit_file_level_;
 
   struct FilePickerContext {
